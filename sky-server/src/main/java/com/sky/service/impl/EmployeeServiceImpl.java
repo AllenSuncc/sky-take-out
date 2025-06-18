@@ -86,7 +86,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         // 设置初始密码, 使用md5加密
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
         // 创建人
-        // TODO 获取当前登录用户, 先写死后期需要更换
         employee.setCreateUser(BaseContext.getCurrentId());
         employee.setUpdateUser(BaseContext.getCurrentId());
         employeeMapper.saveEmployee(employee);
@@ -99,5 +98,28 @@ public class EmployeeServiceImpl implements EmployeeService {
         Page<Employee> page = employeeMapper.pageQuery(employeePageQueryDTO);
         long total = page.getTotal();
         return new PageResult(total, page.getResult());
+    }
+
+    @Override
+    public void statusChange(Integer status, Long id) {
+        Employee employee = new Employee();
+        employee.setStatus(status);
+        employee.setId(id);
+        employeeMapper.updateEmployee(employee);
+    }
+
+    @Override
+    public void updateEmployee(EmployeeDTO employeeDTO){
+        Employee employee = new Employee();
+        BeanUtils.copyProperties(employeeDTO, employee);
+        employee.setUpdateTime(LocalDateTime.now());
+        employee.setUpdateUser(BaseContext.getCurrentId());
+        employeeMapper.updateEmployee(employee);
+        log.info("修改员工信息：{}", employee);
+    }
+
+    @Override
+    public Employee getEmployeeById(Long id) {
+        return employeeMapper.getEmployeeById(id);
     }
 }
